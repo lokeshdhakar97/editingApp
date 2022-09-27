@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project 5 | Editor</title>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+  <link rel="stylesheet" href="../stylesheets/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js"
+    integrity="sha512-odNmoc1XJy5x1TMVMdC7EMs3IVdItLPlCeL5vSUPN2llYKMJ2eByTTAIiiuqLg+GdNr9hF6z81p27DArRFKT7A=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+</head>
+
+<body>
+  <div id="main">
+    <%- include('left'); %>
+      <div class="right">
+        <div class="fileupload">
+          <% if(imageFile.length> 0){%>
+            <div class="image">
+              <img src="../images/<%=imageFile%>" alt="">
+            </div>
+            <%}else{%>
+              <div class="em openFile">
+                <i class="ri-gallery-upload-fill"></i>
+                <h6>Open Image File</h6>
+              </div>
+              <%}%>
+                <form id="file" action="/upload" method="post" enctype="multipart/form-data">
+                  <input id="open" name="avtar" type="file">
+                </form>
+
+        </div>
+      </div>
+  </div>
+  <script>
+
+    let disPlay = false;
+    let disPlay2 = false;
+    let disPlay3 = false;
+    let editImg = [];
+    let imgStatus = 0;
+    let urlImg = "<%=imageFile%>";
+
+    editImg.push("<%=imageFile%>");
+
+    function undo() {
+      document.querySelector("#undo").addEventListener("click", () => {
+        if (imgStatus > 0) {
+          imgStatus--;
+          urlImg = editImg[imgStatus]
+          setImg(urlImg);
+        }
+      });
+    }
+    
+    function redo() {
+      document.querySelector("#redo").addEventListener("click", () => {
+        if (imgStatus >= 0 && imgStatus < editImg.length - 1) {
+          imgStatus++;
+          urlImg = editImg[imgStatus]
+          setImg(urlImg);
+        } else {
+          urlImg = editImg[imgStatus]
+          setImg(urlImg);
+        }
+      });
+    }
+
+    function uploadFile() {
+      document.querySelectorAll(".openFile").forEach((elem) => {
+        elem.addEventListener("click", function () {
+          document.querySelector("#open").click();
+        });
+      });
+      document.querySelector("#open").addEventListener("change", () => {
+        document.querySelector("#file").submit();
+      });
+    }
+
+    function invertImg() {
+      document.querySelector(".invert").addEventListener('click', () => {
+        axios.get(`/invert/${urlImg}`)
+          .then((response) => {
+            pushImgInArray(response.data.imageFile);
+          })
+      });
+    }
+
+    function greyscaleImg() {
+      document.querySelector(".greyscale").addEventListener('click', () => {
+        axios.get(`/greyscale/${urlImg}`)
+          .then((response) => {
+            pushImgInArray(response.data.imageFile);
+          })
+      });
+    }
+
+    function contrastImg() {
+      document.querySelector(".contrast").addEventListener('click', () => {
+        axios.get(`/contrast/${urlImg}`)
+          .then((response) => {
+            pushImgInArray(response.data.imageFile);
+          })
+      });
+    }
+
+    function blurImg() {
+      document.querySelector(".blur").addEventListener('click', () => {
+        axios.get(`/blur/${urlImg}`)
+          .then((response) => {
+            pushImgInArray(response.data.imageFile);
+          })
+      });
+    }
+
+    function sepiaImg() {
+      document.querySelector(".sepia").addEventListener('click', () => {
+        axios.get(`/sepia/${urlImg}`)
+          .then((response) => {
+            pushImgInArray(response.data.imageFile);
+          })
+      });
+    }
+
+    function posterizeImg() {
+      document.querySelector('.post').addEventListener('click', () => {
+        if (disPlay2) {
+          document.querySelector('.postn').style.display = "none";
+          document.querySelector(".post").style.backgroundColor = "rgba(94, 107, 107, 0.481)";
+          disPlay2 = false;
+        } else {
+          document.querySelector('.postn').style.display = "flex";
+          document.querySelector(".post").style.backgroundColor = "black";
+          disPlay2 = true;
+        }
+      });
+      document.querySelectorAll(".par").forEach((elem) => {
+        elem.addEventListener("click", (dets) => {
+          let postnum = dets.target.innerText;
+          axios.get(`/posterize/${urlImg}/${postnum.charAt(0)}`)
+            .then((response) => {
+              pushImgInArray(response.data.imageFile);
+            })
+        });
+      })
+    }
+
+    function resizeImg(){
+      document.querySelector('.resize').addEventListener('click', () => {
+        if (disPlay) {
+          document.querySelector('.wh').style.display = "none";
+          document.querySelector(".resize").style.backgroundColor = "rgba(94, 107, 107, 0.481)";
+          disPlay = false;
+        } else {
+          document.querySelector('.wh').style.display = "flex";
+          document.querySelector(".resize").style.backgroundColor = "black";
+          disPlay = true;
+        }
+      });
+      
+      document.querySelector(".wh i").addEventListener('click', () => {
+        let width = document.querySelector(".wh1 input").value;
+        let height = document.querySelector(".wh2 input").value;
+        axios.get(`/resize/${urlImg}/${width}/${height}`)
+          .then((response) => {
+            pushImgInArray(response.data.imageFile);
+          })
+      });
+    }
+
+    function mirrorImg() {
+      document.querySelector(".mirror").addEventListener('click', () => {
+        axios.get(`/mirror/${urlImg}`)
+          .then((response) => {
+            pushImgInArray(response.data.imageFile);
+          })
+      });
+    }
+
+    function setImg(editImg) {
+      document.querySelector('.image').innerHTML = `<img src="../images/${editImg}" alt="">`
+    }
+
+    function donwloadImg() {
+      document.querySelector('.down').addEventListener('click', () => {
+        document.querySelector('.down').innerHTML = `<a href="/download/${editImg[editImg.length - 1]}">Download</a>`
+        document.querySelector('.down a').click();
+      });
+    }
+
+    function pushImgInArray(img) {
+      imgStatus++;
+      editImg.push(img);
+      urlImg = editImg[editImg.length - 1]
+      setImg(urlImg);
+    }
+
+    function cropImg() {
+      document.querySelector('.crop h6').addEventListener('click', () => {
+        if (disPlay3) {
+          document.querySelector('.crop-at').style.display = "none";
+          document.querySelector('.cropdiv').style.display = "none";
+          document.querySelector(".crop").style.backgroundColor = "rgba(94, 107, 107, 0.481)";
+          disPlay3 = false;
+        } else {
+          document.querySelector('.crop-at').style.display = "flex";
+          document.querySelector('.cropdiv').style.display = "flex";
+          document.querySelector(".crop").style.backgroundColor = "black";
+          disPlay3 = true;
+        }
+      });
+      document.querySelector("#cropbutton").addEventListener("click", () => {
+          let xval = document.querySelector("#xval").value;
+          let yval = document.querySelector("#yval").value;
+          let wth = document.querySelector("#wth").value;
+          let hth = document.querySelector("#hth").value;
+
+          axios.get(`/crop/${urlImg}/${xval}/${yval}/${wth}/${hth}`)
+            .then((response) => {
+              pushImgInArray(response.data.imageFile);
+            })
+        });
+    }
+   
+    cropImg();
+    redo();
+    undo();
+    uploadFile();
+    setImg(editImg[0]);
+    invertImg();
+    blurImg();
+    greyscaleImg();
+    contrastImg();
+    resizeImg();
+    mirrorImg();
+    sepiaImg();
+    donwloadImg();
+    posterizeImg();
+
+  </script>
+
+</body>
+
+</html>
