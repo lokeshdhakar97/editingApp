@@ -174,4 +174,46 @@ res.json({ imageFile: `crop_${req.params.filename}` });
 
 });
 
+router.get('/flip/:filename', async (req, res)=>{
+  await Jimp.read(`./public/images/${req.params.filename}`)
+  .then(image => {
+    image
+      .flip(30, 40)
+      .write(`./public/images/crop_${req.params.filename}`);
+  })
+  .catch(err => {
+    console.error(err);
+  });
+res.json({ imageFile: `crop_${req.params.filename}` });
+
+});
+
+router.get('/fade/:filename/:f', async (req, res)=>{
+  await Jimp.read(`./public/images/${req.params.filename}`)
+  .then(image => {
+    image
+      .fade(Number(req.params.f))
+      .write(`./public/images/crop_${req.params.filename}`);
+  })
+  .catch(err => {
+    console.error(err);
+  });
+res.json({ imageFile: `crop_${req.params.filename}` });
+
+});
+
+router.get('/opacity/:filename', async (req, res)=>{
+  await Jimp.read(`./public/images/${req.params.filename}`)
+  .then(image => {
+    image
+      .opacity(20)
+      .write(`./public/images/crop_${req.params.filename}`);
+  })
+  .catch(err => {
+    console.error(err);
+  });
+res.json({ imageFile: `crop_${req.params.filename}` });
+
+});
+
 module.exports = router;

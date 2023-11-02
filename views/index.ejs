@@ -117,6 +117,15 @@
       });
     }
 
+    function flipImg() {
+      document.querySelector(".flip").addEventListener('click', () => {
+        axios.get(`/flip/${urlImg}`)
+          .then((response) => {
+            pushImgInArray(response.data.imageFile);
+          })
+      });
+    }
+
     function sepiaImg() {
       document.querySelector(".sepia").addEventListener('click', () => {
         axios.get(`/sepia/${urlImg}`)
@@ -226,6 +235,18 @@
         });
     }
    
+
+    function opacityImg() {
+      document.querySelector(".opacity").addEventListener('click', () => {
+        alert('helllo')
+        axios.get(`/opacity/${urlImg}`)
+          .then((response) => {
+            pushImgInArray(response.data.imageFile);
+          })
+      });
+    }
+
+    opacityImg();
     cropImg();
     redo();
     undo();
@@ -233,6 +254,7 @@
     setImg(editImg[0]);
     invertImg();
     blurImg();
+    flipImg();
     greyscaleImg();
     contrastImg();
     resizeImg();
